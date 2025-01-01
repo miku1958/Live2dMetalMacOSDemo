@@ -180,4 +180,8 @@
 
 #endif // END AUTOMATICALLY_RESIZE
 
+- (void)updateTrackingAreas
+{
+    [self addTrackingArea:[[NSTrackingArea alloc] initWithRect:self.bounds options:NSTrackingMouseMoved | NSTrackingActiveAlways owner:self userInfo:nil]];
+}
 @end

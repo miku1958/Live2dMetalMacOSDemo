@@ -64,27 +64,11 @@ using namespace LAppDefine;
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView
 {
-    MetalUIView *metalUiView = [[MetalUIView alloc] init];
-    [self setView:metalUiView];
-}
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-
-#if TARGET_OS_MACCATALYST
-    if (AppDelegate* appDelegate = (AppDelegate*)[[NSApplication sharedApplication] delegate])
-    {
-        appDelegate.window.windowScene.titlebar.titleVisibility = UITitlebarTitleVisibilityHidden;
-    }
-#endif
-
-    //Fremework層でもMTLDeviceを参照するためシングルトンオブジェクトに登録
     CubismRenderingInstanceSingleton_Metal *single = [CubismRenderingInstanceSingleton_Metal sharedManager];
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     [single setMTLDevice:device];
 
-    MetalUIView *view = (MetalUIView*)self.view;
+    MetalUIView *view = [[MetalUIView alloc] init];
 
     // Set the device for the layer so the layer can create drawable textures that can be rendered to
     // on this device.
@@ -95,6 +79,16 @@ using namespace LAppDefine;
 
     view.metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     [single setMetalLayer:view.metalLayer];
+    [self setView:view];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    //Fremework層でもMTLDeviceを参照するためシングルトンオブジェクトに登録
+    CubismRenderingInstanceSingleton_Metal *single = [CubismRenderingInstanceSingleton_Metal sharedManager];
+    id<MTLDevice> device = [single getMTLDevice];
 
     _commandQueue = [device newCommandQueue];
 
@@ -267,57 +261,15 @@ using namespace LAppDefine;
     fHeight = static_cast<float>(_power.GetTextureId.height);
     [_power resizeImmidiate:x Y:y Width:fWidth Height:fHeight];
 }
-- (void)touchesBeganWithEvent:(NSEvent *)event
-{
-    CGPoint point = [event locationInWindow];
 
-    [_touchManager touchesBegan:point.x DeciveY:point.y];
-}
-
-- (void)touchesMovedWithEvent:(NSEvent *)event
+- (void)mouseMoved:(NSEvent *)event
 {
     CGPoint point = [event locationInWindow];
     float viewX = [self transformViewX:[_touchManager getX]];
-    float viewY = [self transformViewY:[_touchManager getY]];
+    float viewY = -[self transformViewY:[_touchManager getY]];
 
     [_touchManager touchesMoved:point.x DeviceY:point.y];
     [[LAppLive2DManager getInstance] onDrag:viewX floatY:viewY];
-}
-- (void)touchesEndedWithEvent:(NSEvent *)event
-{
-    CGPoint point = [event locationInWindow];
-    float pointY = [self transformTapY:point.y];
-
-    // タッチ終了
-    LAppLive2DManager* live2DManager = [LAppLive2DManager getInstance];
-    [live2DManager onDrag:0.0f floatY:0.0f];
-    {
-        // シングルタップ
-        float getX = [_touchManager getX];// 論理座標変換した座標を取得。
-        float getY = [_touchManager getY]; // 論理座標変換した座標を取得。
-        float x = _deviceToScreen->TransformX(getX);
-        float y = _deviceToScreen->TransformY(getY);
-
-        if (DebugTouchLogEnable)
-        {
-            LAppPal::PrintLog("[APP]touchesEnded x:%.2f y:%.2f", x, y);
-        }
-
-        [live2DManager onTap:x floatY:y];
-
-        // 歯車にタップしたか
-        if ([_gear isHit:point.x PointY:pointY])
-        {
-            [live2DManager nextScene];
-        }
-
-        // 電源ボタンにタップしたか
-        if ([_power isHit:point.x PointY:pointY])
-        {
-            AppDelegate *delegate = (AppDelegate *) [[NSApplication sharedApplication] delegate];
-            [delegate finishApplication];
-        }
-    }
 }
 
 - (float)transformViewX:(float)deviceX
@@ -344,9 +296,7 @@ using namespace LAppDefine;
 
 - (float)transformTapY:(float)deviceY
 {
-    AppDelegate *delegate = (AppDelegate *)[NSApplication sharedApplication];
-    ViewController* view = [delegate viewController];
-    float height = view.view.frame.size.height;
+    float height = [[self view] frame].size.height;
     return deviceY * -1 + height;
 }
 
