@@ -70,6 +70,8 @@ using namespace LAppDefine;
 
     MetalUIView *view = [[MetalUIView alloc] init];
 
+    [view setAlphaValue:0];
+
     // Set the device for the layer so the layer can create drawable textures that can be rendered to
     // on this device.
     view.metalLayer.device = device;
@@ -106,6 +108,12 @@ using namespace LAppDefine;
     _viewMatrix = new CubismViewMatrix();
 
     [self initializeScreen];
+}
+
+- (void)viewDidAppear
+{
+    [super viewDidAppear];
+    [self.view.animator setAlphaValue:1];
 }
 
 - (void)initializeScreen
