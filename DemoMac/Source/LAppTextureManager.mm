@@ -54,7 +54,6 @@
         }
     }
 
-    Csm::csmInt32 textureId;
     int width, height, channels;
     unsigned int size;
     unsigned char* png;

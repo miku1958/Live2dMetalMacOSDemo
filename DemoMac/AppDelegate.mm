@@ -106,8 +106,6 @@
 
     _textureManager = nil;
 
-    [LAppLive2DManager releaseInstance];
-
     Csm::CubismFramework::Dispose();
 
     _isEnd = true;

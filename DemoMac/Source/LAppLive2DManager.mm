@@ -367,9 +367,6 @@ Csm::csmString GetPath(CFURLRef url)
         float clearColorG = 1.0f;
         float clearColorB = 1.0f;
 
-        AppDelegate* delegate = (AppDelegate*) [[NSApplication sharedApplication] delegate];
-        ViewController* view = [delegate viewController];
-
         [self SwitchRenderingTarget:useRenderTarget];
         [self SetRenderTargetClearColor:clearColorR g:clearColorG b:clearColorB];
     }

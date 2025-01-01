@@ -3,4 +3,4 @@ Live2d Metal Demo for macOS, modified from the iOS demo, basically nothing chang
 
 Download sdk from https://www.live2d.com/en/sdk/about/
 
-clone this repo to Samples/Metal/Demo/proj.ios.cmake
+clone this repo to Samples/Metal/Demo/proj.ios.cmake/build and name it proj_xcode_macOS
